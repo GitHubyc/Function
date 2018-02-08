@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, maximum-scale=1, Role-scalable=no">
+<title>建筑信息</title>
+</head>
+<body>
+	<!-- 文本框：做隐藏域传值 -->
+	<input name="parentId" id="parentId" type="hidden"
+		th:value="${parentId}">
+
+	<!-- 下拉框：渲染下拉框显示所有且选中一个 -->
+	<select class="form-control" name="parentId">
+		<div th:each="role:${object.data}">
+			<option th:value="${role.roleId}" th:text="${role.roleName}"></option>
+		</div>
+	</select>
+	<!-- 渲染下拉框显示所有 -->
+	<select class="form-control" name="parentId">
+		<div th:each="role:${object.data}">
+			<option th:value="${role.roleId}" th:text="${role.roleName}"></option>
+		</div>
+	</select>
+	<!-- 渲染下拉框显示所有且选中一个（父角色的处理） -->
+	<select class="form-control" name="parentId">
+		<div th:each="allrole:${allobject.data}">
+			<option th:value="${allrole.roleId}" th:text="${allrole.roleName}"
+				th:selected="${allrole.roleId} == ${role.parentId}"></option>
+		</div>
+	</select>
+
+	<!-- 单选按钮：添加 -->
+	<div class="radio radio-inline radio-primary">
+		<input type="radio" id="sex1" name="sex" value="1"> <label
+			for="sex1">男</label>
+	</div>
+	<div class="radio radio-inline radio-primary">
+		<input type="radio" id="sex2" name="sex" value="2"> <label
+			for="sex2">女</label>
+	</div>
+	<!-- 单选按钮：修改 -->
+	<div class="col-lg-10 col-md-10 col-sm-10 col-xs-12">
+		<div class="radio radio-inline radio-primary">
+			<input type="radio" name="status" value="1" id="unitNature1"
+				th:checked="${data.status} == 1"> <label for="unitNature1">
+				在职 </label>
+		</div>
+		<div class="radio radio-inline radio-primary">
+			<input type="radio" name="status" value="2" id="unitNature2"
+				th:checked="${data.status} == 2"> <label for="unitNature2">
+				离职 </label>
+		</div>
+	</div>
+	<!-- 失效时使用以下方法： -->
+	<div th:switch="${data.status}">
+		<div th:case="1">
+			<div class="radio radio-inline radio-primary">
+				<input type="radio" name="status" checked="checked" value="1"
+					disabled="disabled"><label>在职</label>
+			</div>
+			<div class="radio radio-inline radio-primary">
+				<input type="radio" name="status" value="2" disabled="disabled"><label>离职</label>
+			</div>
+		</div>
+		<div th:case="2">
+			<div class="radio radio-inline radio-primary">
+				<input type="radio" name="status" value="1" disabled="disabled"><label>在职</label>
+			</div>
+			<div class="radio radio-inline radio-primary">
+				<input type="radio" name="status" value="2" checked="checked"
+					disabled="disabled"><label>离职</label>
+			</div>
+		</div>
+	</div>
+
+	<!-- 单行文本框：修改页面隐藏ID属性，表单提交到controller.disabled和display属性无法传值 -->
+	<input name="roleId" id="roleId" type="hidden"
+		th:value="${role.roleId}">
+
+	<!-- 判断数据为空 -->
+	<dl class="list_table"
+		th:if="${object.data == null or object.data =='null' or #lists.isEmpty(object.data)}">
+		<div class="null">暂无数据</div>
+	</dl>
+
+	<!-- 引用分页插件在表格下： 全局加载 -->
+	<div th:replace="fragments/page :: page('defaultForm','/group/list')">分页</div>
+	<!-- 局部加载（参数分别为块区域id，表单id，controller链接）-->
+	<div
+		th:replace="fragments/pageforload :: pageforload('ok','unitemployee_list','/unitemployee/list')">分页</div>
+
+	<!-- 页面列表显示图片 -->
+	<td><img class="list_img" style="height:120px;width:90px;"
+		th:src="${obj.icon}==null?'../img/noimage.png':${obj.icon}"> <img
+		class="img_show"
+		th:src="${obj.icon}==null?'../img/noimage.png':${obj.icon}"
+		width="100%" style="display: none;"></td>
+
+	<!-- 上传图片（配合js、controller使用） -->
+	<div class="pic_updateimg" style="width:200px;height:250px">
+		<div class="picDiv">
+			<img class="Img" id="pic" src="../img/noimage.png"
+				style="width:170px;height:190px">
+		</div>
+		<span class="btn-file"> <span class="btn btn-blue btn-color">
+				添加用户头像<i class="glyphicon glyphicon-plus" style="margin-left: 5px;"></i>
+		</span> <input type="file" name="buildImage" id="updateimg"
+			onchange="ajaxFileUpload('updateimg','pic','fileimgid')"
+			accept="image/gif,image/jpeg,image/x-png" /> </span>
+	</div>
+
+	<!-- 判断页面操作是否显示 -->
+	<div class="right col-lg-7 col-md-4 col-sm-4 col-xs-3"
+		th:if="${right != null and right !='null' and not #lists.isEmpty(right)}">
+		<a th:href="@{/unit/add}" th:each="right:${right}"
+			th:if="${right.operateUrl == '/unit/add'}"
+			class="btn btn-blue btn-color pull-right"><span>新增单位</span><i
+			class="fa_icon fa-plus"></i> </a>
+	</div>
+	<!-- 判断页面菜单是否显示 -->
+	<div class="right col-lg-7 col-md-4 col-sm-4 col-xs-3"
+		th:if="${right != null and right !='null' and not #lists.isEmpty(right)}">
+		<a th:href="@{/unit/add}" th:each="right:${right}"
+			th:if="${right.menuUrl == '/unit/add'}"
+			class="btn btn-blue btn-color pull-right"><span>新增单位</span><i
+			class="fa_icon fa-plus"></i> </a>
+	</div>
+	<!-- 页面表格中操作是否显示 -->
+	<span th:if="${right != null and right !='null' and not #lists.isEmpty(right)}">
+		<button type="button" class="btn btn-blue" th:each="right:${right}" th:if="${right.operateUrl == '/unit/edit'}"
+			th:onclick="'location.href=\'/unit/edit?unitCode='+${unit.unitCode}+'&&unitNature='+${unit.unitNature}+'\''">编辑</button>
+		<button type="button" class="btn btn-red unit_del"
+			th:each="right:${right}"
+			th:if="${right.operateUrl == '/unit/del'}"
+			th:id="${unit.unitCode}" th:name="${unit.unitNature}">删除</button> </span>
+</body>
+<script type="text/javascript">
+	//控制菜单的隐藏显示 （应用于tree中）
+    $("ul[class] li i").each(function(){  
+        $(this).click(function(){  
+        	$(this).parent('li').next().toggle();
+        }) ;  
+    }) ;
+	
+	//使用load局部加载
+	$('.x_top1 a').on('click', function(e) { // 点击x_top1类下的a链接时
+		var index = $(this).index(); //
+		e.preventDefault(); // 阻止链接跳转 
+		var url = this.href; // 保存点击的链接
+		if (url) {
+			$("#ok").load(url); // id命名为ok的块区域加载链接
+		}
+	}); //表格末添加
+	
+	//获取li的属性：对象.id
+	$("li").each(function(){ 
+         $(this).click(function(){
+            alert(this.id);
+         });
+    });
+    
+    //情景：父元素事件覆盖子元素事件，当执行子元素事件后会继续执行父元素事件（方法：执行完子元素后return false）
+    return false;
+
+	//select单位、员工联动（获得员工的json数组，在点击单位下拉框时员工下拉框放入对应数据）
+	var json = $("#continer1").attr('value');
+	var obj = eval('(' + json + ')');
+	if (obj == null) {
+		obj = [];
+	}
+	$("#continer1").attr('value', null);
+	$('#unit').change(function() {
+		var employee = document.getElementById("employee"); //员工下拉框
+		employee.options.length = 0; //设为空
+		var unit = document.getElementById("unit");
+		var unitvalue = unit.options[unit.selectedIndex].value; //已选单位
+		var option = new Option("请选择员工", null);
+		option.disabled = true;
+		option.selected = true;
+		employee.add(option); //将请选择员工放入员工下拉框
+		$.each(obj, function(n, value) {
+			if (unitvalue == value.unitCode) { //员工的单位编号匹配到选择的单位时，放入数据
+				employee.add(new Option(value.name, value.employeeCode));
+			}
+		});
+		if (employee.options.length == 1) { //只有请选择员工时，将其变为没有员工待选择
+			employee.options.length = 0;
+			option.text = "该单位下没有员工 ！";
+			employee.add(option);
+		}
+	})
+
+	// 点击图片变大图
+	$('.list_img').each(function(index) {
+		$(this).on("click", function() {
+			layer.open({
+				type : 1,
+				title : false,
+				closeBtn : 0,
+				area : '516px',
+				skin : 'layui-layer-nobg', // 没有背景色
+				shadeClose : true,
+				content : $(".img_show").eq(index)
+			});
+
+		});
+	});
+
+	//图片上传时在ajax中进行处理，将name改成自己需要的（因为在controller中写定了一个参数作为上传字段，为了重用只要在此处进行字段转换）
+	data['icon'] = $("#pic").attr("src");
+
+	// 刷新父页面
+	setTimeout(function() {
+		parent.layer.closeAll('iframe');//取消弹窗
+		window.parent.location.reload();
+	}, 500);
+
+	//指定刷新页面
+	setTimeout(function() {
+		parent.layer.closeAll('iframe');
+		parent.$("#ok").load("/unitemployee/list");
+	}, 500);
+	
+	//通过切换tab刷新页面
+	$('.x_top1 .btn-blue').click(
+		function() {
+			var index = $(this).index();
+			$(this).addClass("btn-color").siblings().removeClass("btn-color");
+			$(".x_panel .c_content").each(
+					function() {
+						$(".x_panel .c_content").eq(index).show().attr("id",
+								"ok").siblings(".c_content").hide().removeAttr(
+								"id");
+					});
+		});
+		var url = $('.x_top1 .btn-color').attr("href");
+		$("#ok").load(url);
+		$('.x_top1 a').on('click', function(e) {
+			var index = $(this).index();
+			e.preventDefault(); // 阻止链接跳转
+			var url = this.href; // 保存点击的地址
+			if (url) {
+				$("#ok").load(url);
+			}
+		});
+
+	//js 自动点击事件
+	$(document).ready(function() {
+		setTimeout(function() {
+			// IE
+			if (document.all) {
+				document.getElementById("clickMe").click();
+			}
+			// 其它浏览器
+			else {
+				var e = document.createEvent("MouseEvents");
+				e.initEvent("click", true, true);
+				document.getElementById("clickMe").dispatchEvent(e);
+			}
+		}, 200);
+	})
+
+	//实现页面响应完成前展示打转
+	layer.load(1);//bootstrapt自带的效果
+	layer.closeAll('loading');
+
+	//在页面未加载完毕之前显示的loading Html自定义内容
+	var _LoadingHtml = '页面加载中，请等待...'; //呈现loading效果
+	document.write(_LoadingHtml); //监听加载状态改变
+	document.onreadystatechange = completeLoading;//加载状态为complete时移除loading效果
+	function completeLoading() {
+		if (document.readyState == "complete") {
+			var loadingMask = document.getElementById('loadingDiv');
+			loadingMask.parentNode.removeChild(loadingMask);
+		}
+	}
+
+	/**
+	//后台 有响应数据的方法不要漏加@ResponseBody
+	//接口返回数据为null时，不要返回[]
+	
+	//判断要修改的用户名是否存在
+	if (!StringUtils.isEmpty(userDto.getUsername())) {
+		UserEntity username = new UserEntity();
+		username.setUsername(userDto.getUsername());
+		username.setUserId(userId);
+		if (userDao.exists(username)) {
+			username.setUsername(null);
+			username.setUserId("-100"); //名字不修改时设置成一定不存在的Id
+		} else {
+			username.setUserId(null);
+		}
+		if (userDao.exists(username)) {
+			status = HttpStatus.NOT_MODIFIED;
+			msg = "该记录已存在！(用户名已存在)";
+			return new Response(status.value(), msg);
+		}
+	}
+	
+	//获取的一条数据与多条数据进行比对
+	JSONArray objectdata = new JSONArray();
+	JSONArray allobjectdata = new JSONArray();
+	JSONArray data = new JSONArray();// 返回给前台
+	if (allobject.getJSONArray("data") != null && !(allobject.get("data").equals("null"))) {
+		allobjectdata = allobject.getJSONArray("data");
+	}
+	if (object.get("data") != null && !(object.get("data").equals("null"))) {
+		objectdata = object.getJSONArray("data");
+	}
+	for (int i = 0; i < allobjectdata.size(); i++) {
+		JSONObject allrole = allobjectdata.getJSONObject(i); // 遍历jsonarray数组，把每一个对象转成json对象
+		String biaosi = "0";
+		for (int j = 0; j < objectdata.size(); j++) {
+			JSONObject role = objectdata.getJSONObject(j);
+			if (role.get("rightId").equals(allrole.get("rightId"))) {
+				biaosi = "1";
+			}
+		}
+		if ("".equals(biaosi) || null == biaosi) {
+			biaosi = "0";
+		}
+		allrole.put("biaosi", biaosi);
+		data.add(allrole);
+	}
+	
+	//将集合转换成字符串且以逗号分隔
+	String str = Joiner.on(",").join(stringlist);
+	//将逗号分隔的字符串转换成集合
+	List<String> list = Arrays.asList(buildCodes.split(","));
+	//有集合查询实例
+	MapSqlParameterSource parameters = new MapSqlParameterSource();
+	NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate);  
+	List<String> list = Arrays.asList(buildCodes.split(","));
+	if (currentPage > 0 && pageSize > 0) {
+		int tempcurrent=currentPage;
+		currentPage =  (currentPage-1) * pageSize+1;
+		pageSize = tempcurrent * pageSize;
+		sql.append("SELECT * FROM ( SELECT A.*, ROWNUM RN FROM (");
+	}
+	sql.append(" SELECT * ");
+	sql.append("FROM T_BUILD_INFO WHERE 1=1 ");
+	if (!StringUtils.isEmpty(buildInfoEntity.getGroundArea())) {
+		sql.append(" AND GROUND_AREA like :groundArea ");
+		parameters.addValue("groundArea", "%"+buildInfoEntity.getGroundArea()+"%");
+	}
+	List<BuildInfoEntity> buildInfoEntities = namedParameterJdbcTemplate.query(
+		sql.toString(),parameters, new BeanPropertyRowMapper(BuildInfoEntity.class));
+	return buildInfoEntities;
+	
+	// 字符串转jsonArray
+		Object a = object.get("data");
+		String b = "[" + a.toString() + "]";
+		JSONArray json = JSONArray.fromObject(b); // 首先把字符串转成 JSONArray 对象
+		if (json.size() > 0) {
+			for (int i = 0; i < json.size(); i++) {
+				JSONObject job = json.getJSONObject(i); // 遍历 jsonarray
+														// 数组，把每一个对象转成 json 对象
+			}
+		}
+		object.remove("data");
+		object.put("data", json);
+	
+	//JSONArray排序
+	@SuppressWarnings("unchecked")
+	private static void sort(JSONArray ja, final String field, boolean isAsc) {
+		Collections.sort(ja, new Comparator<JSONObject>() {
+			@Override
+			public int compare(JSONObject o1, JSONObject o2) {
+				Object f1 = o1.get(field);
+				Object f2 = o2.get(field);
+				if (f1 instanceof Number && f2 instanceof Number) {
+					return ((Number) f1).intValue() - ((Number) f2).intValue();
+				} else {
+					return f1.toString().compareTo(f2.toString());
+				}
+			}
+		});
+		if (!isAsc) {
+			Collections.reverse(ja);
+		}
+	}
+	
+	//模糊查询
+	if (!StringUtils.isEmpty(tableEntity.getTableName())) {
+		sql.append(" AND TABLE_NAME like ?");
+		params.add("%"+tableEntity.getTableName()+"%");
+	}
+	//排序
+	if (!StringUtils.isEmpty(classifyEntity.getOrderBy())){
+		if(classifyEntity.getOrderBy() == 1){
+			sql.append(" ORDER BY ORDER_BY ASC");
+		}else if(classifyEntity.getOrderBy() == 2){
+			sql.append(" ORDER BY ORDER_BY DESC");
+		}
+	}
+	//查询子孙数据
+	public List<ClassifyEntity> getClassify(String classifyId, String parentId, List<ClassifyEntity> rs) {
+        ClassifyEntity classifyEntity = new ClassifyEntity();
+        classifyEntity.setParentId(parentId);
+        List<ClassifyEntity> classifyEntities = classifyDao.findAll(0, 0, classifyEntity);
+        for (int i = 0; i < classifyEntities.size(); i++) {
+            ClassifyEntity classifyEntity1 = new ClassifyEntity();
+            classifyEntity1.setParentId(classifyEntities.get(i).getClassifyId());
+            List<ClassifyEntity> classifyEntities1 = classifyDao.findAll(0, 0, classifyEntity1);
+            if (classifyEntities1.size() > 0) {
+                rs.add(classifyEntities.get(i));
+                getClassify(classifyId, classifyEntities.get(i).getClassifyId(), rs);
+            } else {
+                rs.add(classifyEntities.get(i));
+            }
+        }
+        return rs;
+    }
+	//springMVC注解校验
+	//（非空）
+	@NotEmpty(message = "姓名 name不能为空")
+	//（手机号）
+	@Pattern(regexp = "^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\d{8}$", message = "{联系电话 tel格式错误}")
+	//（1-11的字符串）
+	@Pattern(regexp = "^[1-9]|(1[0-1])$", message = "{工种 typeWork只能输入1-11}")
+	//数字字符串
+	@Pattern(regexp = "^^[0-9]*$", message = "{行政区域 administrativeRegions必须是数字}")
+	//（1-2的Integer）
+	@Range(min=1,max=2, message = "{性别 sex需要在1-2之间}")
+	@Range(min=1,max=2, message = "{排序 orderBy错误:1为升序，2为降序}")
+	
+	//表删除：中间表维系关系的删除，先查询出数据，再删除中间表，在删除被关联表，再删除表
+	
+	//两个数据库数据交叉查询（单位、建筑关系），先查询单位下的建筑id以逗号分隔，将此字符串传入建筑信息查询
+	
+	//数据库字段的父子关系：根数据可以以0为父id
+	*/
+	/**
+	代码规范
+	后台方法的命名：
+		list,add,del,edit,details
+	交互路径的命名(参数以param的形式传递，便于权限控制)：
+		'/user/del?userId=' + userId;
+	js：
+		尽量使用单引号，句末加分号
+	细节处理：字段处理、模糊查询、排序、数据验证、controller命名（大写字母转下划线）
+	*/
+</script>
+</html>
